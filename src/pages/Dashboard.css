@@ -1,0 +1,344 @@
+/* Dashboard.css — Beige & Brown Theme, Clean UI */
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #faf6f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 28px 32px;
+  min-width: 0;
+}
+
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dash-header h1 {
+  margin: 0;
+  font-size: 1.65rem;
+  color: #4a3228;
+  font-weight: 700;
+}
+
+/* Toast Alert */
+.toast-alert {
+  background-color: #8b5e3c;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Input Row */
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.input-group input {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 14px;
+  border: 1.5px solid #d5c4a1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #4a3228;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #8b5e3c;
+  box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #b5a18a;
+}
+
+/* Search Bar */
+.search-bar {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border: 1.5px solid #d5c4a1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #4a3228;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-bar:focus {
+  border-color: #8b5e3c;
+  box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.1);
+}
+
+.search-bar::placeholder {
+  color: #b5a18a;
+}
+
+/* Stats Chips */
+.stats-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #ddd0c0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  min-width: 120px;
+}
+
+.stat-chip-danger {
+  border-color: #d4a09a;
+  background: #fdf5f3;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: #8a7360;
+  font-weight: 500;
+}
+
+.stat-count {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4a3228;
+}
+
+.stat-chip-danger .stat-count {
+  color: #b5493a;
+}
+
+/* Patient Table */
+.patient-list-wrapper {
+  overflow-x: auto;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  border: 1px solid #ddd0c0;
+}
+
+.patient-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.patient-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: #f5ebe0;
+  color: #5c3d2e;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid #d5c4a1;
+}
+
+.patient-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #efe6da;
+  color: #4a3228;
+  font-size: 0.9rem;
+}
+
+.patient-table tr:last-child td {
+  border-bottom: none;
+}
+
+.patient-table tr:hover td {
+  background-color: #faf6f0;
+}
+
+/* Risk Badges */
+.risk-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.risk-low {
+  color: #3d7a45;
+  background-color: #e6f4ea;
+}
+
+.risk-medium {
+  color: #9a6b20;
+  background-color: #fef4e0;
+}
+
+.risk-high {
+  color: #b5493a;
+  background-color: #fde8e5;
+}
+
+/* Empty State */
+.empty-msg {
+  text-align: center;
+  color: #a08a72;
+  padding: 32px 16px;
+  font-size: 0.95rem;
+}
+
+/* Modules Grid */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.module {
+  background: #fff;
+  border: 1px solid #ddd0c0;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.module h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #5c3d2e;
+}
+
+.module-text {
+  color: #7a6352;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.footer-info {
+  margin: 4px 0 0 0;
+  font-size: 0.88rem;
+  color: #7a6352;
+}
+
+/* ---- Shared Buttons (imported via Overview.css, but scoped fallback) ---- */
+.main-content .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.main-content .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(92, 61, 46, 0.12);
+}
+
+.main-content .btn:active { transform: translateY(0); box-shadow: none; }
+.main-content .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.main-content .btn-primary { background-color: #8b5e3c; color: #fff; }
+.main-content .btn-primary:hover { background-color: #744e32; }
+
+.main-content .btn-secondary { background-color: #e8ddd0; color: #5c3d2e; }
+.main-content .btn-secondary:hover { background-color: #ddd0c0; }
+
+.main-content .btn-outline {
+  background: transparent;
+  border: 1.5px solid #c4a882;
+  color: #6b4f3a;
+}
+.main-content .btn-outline:hover { border-color: #8b5e3c; color: #8b5e3c; }
+
+.main-content .btn-danger-outline {
+  background: transparent;
+  border: 1.5px solid #d4a09a;
+  color: #b5493a;
+}
+.main-content .btn-danger-outline:hover { background: #b5493a; color: #fff; border-color: #b5493a; }
+
+.main-content .btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: 6px; }
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+  .main-content { padding: 20px; }
+  .modules-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .app-container { flex-direction: column; }
+  .main-content { padding: 16px; }
+  .dash-header { flex-direction: column; align-items: flex-start; }
+  .dash-header h1 { font-size: 1.35rem; }
+  .input-group { flex-direction: column; }
+  .input-group input { min-width: unset; }
+  .stats-container { flex-direction: column; }
+  .stat-chip { min-width: unset; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .patient-table th,
+  .patient-table td { padding: 10px 12px; font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  .main-content .btn { padding: 8px 14px; font-size: 0.85rem; }
+  .main-content .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #8a7360;
+  gap: 16px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e8ddd0;
+  border-top-color: #8b5e3c;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
