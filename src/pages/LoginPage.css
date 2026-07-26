@@ -1,0 +1,154 @@
+/* Earth + Green Palette */
+:root {
+  --earth-bg: #F4F1EA;
+  --earth-light: #E7E1D8;
+  --earth-accent: #A07660;
+  --earth-dark: #4A4540;
+
+  --green-primary: #5B6E5B;
+  --green-hover: #4A5A4A;
+  --green-soft: #7D8F7D;
+
+  --white: #FFFFFF;
+}
+
+/* Page Container */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--earth-bg);
+  padding: 16px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--white);
+  border: 1px solid var(--earth-light);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--earth-dark);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--green-primary);
+  margin-top: 6px;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group label {
+  font-size: 14px;
+  color: var(--earth-dark);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--earth-light);
+  border-radius: 10px;
+  outline: none;
+  transition: 0.3s ease;
+}
+
+.input:focus {
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 2px rgba(91, 110, 91, 0.2);
+}
+
+/* Button */
+.button {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--green-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-weight: 500;
+}
+
+.button:hover {
+  background: var(--green-hover);
+}
+
+/* Login Error */
+.login-error {
+  background: #fde8e5;
+  color: #b5493a;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  border: 1px solid #f5c6c0;
+  animation: shake 0.35s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+}
+
+/* Button disabled/loading */
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.footer-text {
+  margin-top: 20px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--earth-accent);
+}
+
+/* Demo credentials hint */
+.demo-credentials {
+  margin-top: 8px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--green-soft);
+  font-style: italic;
+}
+
+/* Register link */
+.register-link {
+  color: var(--green-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.register-link:hover {
+  color: var(--green-hover);
+  text-decoration: underline;
+}

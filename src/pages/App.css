@@ -1,0 +1,19 @@
+/* Align global configuration tokens */
+:root {
+  --earthy-brown: #8C6246;
+  --soft-border: #EFECE6;
+  --text-dark: #3A2E2B;
+}
+
+/* Base structural look for dashboard metrics cards */
+.card {
+  background: #FFFFFF;
+  border: 1px solid var(--soft-border);
+  box-shadow: 0 4px 20px rgba(58, 46, 43, 0.02);
+  box-sizing: border-box;
+}
+
+/* Row separation for the data grid */
+table tbody tr:hover {
+  background-color: #FDFBF7;
+}
