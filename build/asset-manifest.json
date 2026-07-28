@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.a57f8ac2.css",
+    "main.js": "/static/js/main.6dce4eaf.js",
+    "static/js/453.63f6a118.chunk.js": "/static/js/453.63f6a118.chunk.js",
+    "static/media/logonidiaz.jpg": "/static/media/logonidiaz.8780c86dc11322696547.jpg",
+    "index.html": "/index.html",
+    "main.a57f8ac2.css.map": "/static/css/main.a57f8ac2.css.map",
+    "main.6dce4eaf.js.map": "/static/js/main.6dce4eaf.js.map",
+    "453.63f6a118.chunk.js.map": "/static/js/453.63f6a118.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a57f8ac2.css",
+    "static/js/main.6dce4eaf.js"
+  ]
+}

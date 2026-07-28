@@ -48,7 +48,7 @@ const Overview = () => {
     try {
       await api.exportReport();
     } catch (err) {
-      alert('Export failed: ' + err.message);
+      console.error('Export failed:', err);
     } finally {
       setExporting(false);
     }

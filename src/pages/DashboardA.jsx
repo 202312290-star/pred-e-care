@@ -10,7 +10,7 @@ const CustomTooltip = ({ active, payload, activeTab }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const isFuture = data.type === 'future';
-    
+
     // Choose appropriate title
     const valueLabel = activeTab === 'total' ? 'Total Patient Count' : activeTab === 'dengue' ? 'Dengue Specific Cases' : 'Influenza Cases';
     const value = isFuture ? data.predicted : data.actual;
@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload, activeTab }) => {
           </span>
         </div>
         <p style={{ margin: '6px 0 0 0', fontSize: '0.72rem', fontStyle: 'italic', color: isFuture ? '#8b5e3c' : '#7a6352', fontWeight: '600' }}>
-          {isFuture ? '✨ ML Regression Model projection' : '✓ Verified Database Entry log'}
+          {isFuture ? ' ML Regression Model projection' : 'Verified Database Entry log'}
         </p>
       </div>
     );
@@ -99,7 +99,7 @@ const DashboardA = () => {
               </div>
             </div>
           )}
-  
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '1.5rem' }}>
             <div>
               <h2 style={{ fontSize: '1.4rem', color: '#4a3228', fontWeight: '800', margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -113,32 +113,32 @@ const DashboardA = () => {
 
             {/* TAB SELECTOR */}
             <div style={{ display: 'flex', background: '#f5ebe0', padding: '4px', borderRadius: '8px', border: '1px solid #e8ddd0' }}>
-              <button 
-                onClick={() => setActiveTab('total')} 
-                style={{ 
-                  background: activeTab === 'total' ? '#8b5e3c' : 'transparent', 
-                  color: activeTab === 'total' ? '#fff' : '#5c3d2e', 
-                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' 
+              <button
+                onClick={() => setActiveTab('total')}
+                style={{
+                  background: activeTab === 'total' ? '#8b5e3c' : 'transparent',
+                  color: activeTab === 'total' ? '#fff' : '#5c3d2e',
+                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s'
                 }}
               >
                 Total Cases
               </button>
-              <button 
-                onClick={() => setActiveTab('dengue')} 
-                style={{ 
-                  background: activeTab === 'dengue' ? '#b5493a' : 'transparent', 
-                  color: activeTab === 'dengue' ? '#fff' : '#5c3d2e', 
-                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' 
+              <button
+                onClick={() => setActiveTab('dengue')}
+                style={{
+                  background: activeTab === 'dengue' ? '#b5493a' : 'transparent',
+                  color: activeTab === 'dengue' ? '#fff' : '#5c3d2e',
+                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s'
                 }}
               >
                 Dengue Outbreaks
               </button>
-              <button 
-                onClick={() => setActiveTab('flu')} 
-                style={{ 
-                  background: activeTab === 'flu' ? '#3d7a45' : 'transparent', 
-                  color: activeTab === 'flu' ? '#fff' : '#5c3d2e', 
-                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' 
+              <button
+                onClick={() => setActiveTab('flu')}
+                style={{
+                  background: activeTab === 'flu' ? '#3d7a45' : 'transparent',
+                  color: activeTab === 'flu' ? '#fff' : '#5c3d2e',
+                  border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s'
                 }}
               >
                 Influenza Trends
@@ -177,12 +177,12 @@ const DashboardA = () => {
               <AreaChart data={trendForecast} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} stopOpacity={0}/>
+                    <stop offset="5%" stopColor={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorPred" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#c4a882" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#c4a882" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#c4a882" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#c4a882" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0e6da" />
@@ -190,40 +190,40 @@ const DashboardA = () => {
                 <YAxis stroke="#8a7360" fontSize={11} tickLine={false} dx={-10} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip activeTab={activeTab} />} />
                 <Legend verticalAlign="top" height={36} iconType="circle" />
-                
+
                 {/* Reference line for the transition between Present and Future */}
                 {trendForecast.find(d => d.type === 'present') && (
-                  <ReferenceLine 
-                    x={trendForecast.find(d => d.type === 'present').label} 
-                    stroke="#8a7360" 
+                  <ReferenceLine
+                    x={trendForecast.find(d => d.type === 'present').label}
+                    stroke="#8a7360"
                     strokeWidth={2}
-                    strokeDasharray="4 4" 
-                    label={{ value: 'Current Week', fill: '#5c3d2e', fontSize: 10, fontWeight: '700', position: 'top', offset: 15 }} 
+                    strokeDasharray="4 4"
+                    label={{ value: 'Current Week', fill: '#5c3d2e', fontSize: 10, fontWeight: '700', position: 'top', offset: 15 }}
                   />
                 )}
 
                 {/* Actual Historical Path */}
-                <Area 
-                  type="monotone" 
-                  dataKey={activeTab === 'total' ? 'actual' : activeTab === 'dengue' ? 'actualDengue' : 'actualFlu'} 
-                  stroke={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} 
-                  strokeWidth={3} 
-                  fillOpacity={1} 
-                  fill="url(#colorActual)" 
-                  name="Recorded Patient Count" 
+                <Area
+                  type="monotone"
+                  dataKey={activeTab === 'total' ? 'actual' : activeTab === 'dengue' ? 'actualDengue' : 'actualFlu'}
+                  stroke={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'}
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorActual)"
+                  name="Recorded Patient Count"
                   activeDot={{ r: 6, strokeWidth: 0 }}
                 />
 
                 {/* Future Forecast Path */}
-                <Area 
-                  type="monotone" 
-                  dataKey={activeTab === 'total' ? 'predicted' : activeTab === 'dengue' ? 'predictedDengue' : 'predictedFlu'} 
-                  stroke={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'} 
-                  strokeWidth={3} 
+                <Area
+                  type="monotone"
+                  dataKey={activeTab === 'total' ? 'predicted' : activeTab === 'dengue' ? 'predictedDengue' : 'predictedFlu'}
+                  stroke={activeTab === 'total' ? '#8b5e3c' : activeTab === 'dengue' ? '#b5493a' : '#3d7a45'}
+                  strokeWidth={3}
                   strokeDasharray="6 6"
-                  fillOpacity={1} 
-                  fill="url(#colorPred)" 
-                  name="Algorithm Forecast Projection" 
+                  fillOpacity={1}
+                  fill="url(#colorPred)"
+                  name="Algorithm Forecast Projection"
                   activeDot={{ r: 5, strokeWidth: 0 }}
                 />
               </AreaChart>

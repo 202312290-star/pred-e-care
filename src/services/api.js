@@ -1,8 +1,10 @@
-const BASE_URL = 'http://localhost/ecare';
+const rawBaseUrl = process.env.REACT_APP_API_URL || '/api';
+const BASE_URL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
 
 export const login = async (email, password) => {
     try {
-        const response = await fetch(`${BASE_URL}/login.php`, {
+        const response = await fetch(`${BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -11,7 +13,8 @@ export const login = async (email, password) => {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -29,7 +32,7 @@ export const login = async (email, password) => {
 
 export const register = async (fullName, email, password, role) => {
     try {
-        const response = await fetch(`${BASE_URL}/register.php`, {
+        const response = await fetch(`${BASE_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -38,7 +41,8 @@ export const register = async (fullName, email, password, role) => {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -55,36 +59,36 @@ export const register = async (fullName, email, password, role) => {
 };
 
 export const logout = () => {
-    // Clear user session/local storage if needed
+    localStorage.removeItem('user');
     console.log("Logged out");
 };
 
 export const getDashboardA = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=dashboard_a`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=dashboard_a`);
     if (!response.ok) throw new Error("Failed to fetch epidemiological forecast");
     return response.json();
 };
 
 export const getDashboardB = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=dashboard_b`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=dashboard_b`);
     if (!response.ok) throw new Error("Failed to fetch operational flow");
     return response.json();
 };
 
 export const getDashboardC = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=dashboard_c`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=dashboard_c`);
     if (!response.ok) throw new Error("Failed to fetch inventory forecast");
     return response.json();
 };
 
 export const getPatients = async () => {
-    const response = await fetch(`${BASE_URL}/patients.php`);
+    const response = await fetch(`${BASE_URL}/patients`);
     if (!response.ok) throw new Error("Failed to fetch patients");
     return response.json();
 };
 
 export const addPatient = async (patient) => {
-    const response = await fetch(`${BASE_URL}/patients.php`, {
+    const response = await fetch(`${BASE_URL}/patients`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patient),
@@ -96,7 +100,7 @@ export const addPatient = async (patient) => {
 };
 
 export const updatePatient = async (id, patient) => {
-    const response = await fetch(`${BASE_URL}/patients.php?id=${id}`, {
+    const response = await fetch(`${BASE_URL}/patients?id=${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patient),
@@ -108,7 +112,7 @@ export const updatePatient = async (id, patient) => {
 };
 
 export const deletePatient = async (id) => {
-    const response = await fetch(`${BASE_URL}/patients.php?id=${id}`, {
+    const response = await fetch(`${BASE_URL}/patients?id=${id}`, {
         method: 'DELETE',
     });
     if (!response.ok) throw new Error("Failed to delete patient");
@@ -118,7 +122,7 @@ export const deletePatient = async (id) => {
 };
 
 export const clearAllPatients = async () => {
-    const response = await fetch(`${BASE_URL}/patients.php`, {
+    const response = await fetch(`${BASE_URL}/patients`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'clearAll' }),
@@ -130,19 +134,19 @@ export const clearAllPatients = async () => {
 };
 
 export const getStats = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=stats`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=stats`);
     if (!response.ok) throw new Error("Failed to fetch stats");
     return response.json();
 };
 
 export const getActivity = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=activity`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=activity`);
     if (!response.ok) throw new Error("Failed to fetch activity");
     return response.json();
 };
 
 export const exportReport = async () => {
-    const response = await fetch(`${BASE_URL}/dashboard.php?action=export`);
+    const response = await fetch(`${BASE_URL}/dashboard?action=export`);
     if (!response.ok) throw new Error("Failed to export report");
     
     const blob = await response.blob();
@@ -164,7 +168,7 @@ export const exportReport = async () => {
 
 // --- ADMIN USER MANAGEMENT ENDPOINTS ---
 export const getUsers = async () => {
-    const response = await fetch(`${BASE_URL}/admin.php`);
+    const response = await fetch(`${BASE_URL}/admin`);
     if (!response.ok) throw new Error("Failed to fetch users");
     const data = await response.json();
     if (data.status === 'error') throw new Error(data.message);
@@ -172,7 +176,7 @@ export const getUsers = async () => {
 };
 
 export const updateUserRole = async (id, role) => {
-    const response = await fetch(`${BASE_URL}/admin.php`, {
+    const response = await fetch(`${BASE_URL}/admin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, role }),
@@ -184,7 +188,7 @@ export const updateUserRole = async (id, role) => {
 };
 
 export const deleteUser = async (id) => {
-    const response = await fetch(`${BASE_URL}/admin.php?id=${id}`, {
+    const response = await fetch(`${BASE_URL}/admin?id=${id}`, {
         method: 'DELETE',
     });
     if (!response.ok) throw new Error("Failed to delete user");
@@ -193,4 +197,44 @@ export const deleteUser = async (id) => {
     return data;
 };
 
+// --- BHW ASSIGNMENT ENDPOINTS ---
+export const getBhwAssignments = async () => {
+    const response = await fetch(`${BASE_URL}/bhw_handler`);
+    if (!response.ok) throw new Error("Failed to fetch BHW assignments");
+    const data = await response.json();
+    if (data.status === 'error') throw new Error(data.message);
+    return data.data;
+};
 
+export const addBhwAssignment = async (assignment) => {
+    const response = await fetch(`${BASE_URL}/bhw_handler`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(assignment),
+    });
+    if (!response.ok) throw new Error("Failed to log BHW assignment");
+    const data = await response.json();
+    if (data.status === 'error') throw new Error(data.message);
+    return data;
+};
+
+// --- INVENTORY ENDPOINTS ---
+export const getInventory = async () => {
+    const response = await fetch(`${BASE_URL}/inventory`);
+    if (!response.ok) throw new Error("Failed to fetch medicine inventory");
+    const data = await response.json();
+    if (data.status === 'error') throw new Error(data.message);
+    return data.data;
+};
+
+export const addInventory = async (item) => {
+    const response = await fetch(`${BASE_URL}/inventory`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item),
+    });
+    if (!response.ok) throw new Error("Failed to add inventory item");
+    const data = await response.json();
+    if (data.status === 'error') throw new Error(data.message);
+    return data;
+};

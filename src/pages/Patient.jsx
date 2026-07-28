@@ -28,13 +28,11 @@ const Patients = () => {
   }, [fetchPatients]);
 
   const deletePatient = async (id) => {
-    if (window.confirm('Are you sure you want to delete this patient?')) {
-      try {
-        await api.deletePatient(id);
-        await fetchPatients();
-      } catch (err) {
-        alert('Failed to delete patient: ' + err.message);
-      }
+    try {
+      await api.deletePatient(id);
+      await fetchPatients();
+    } catch (err) {
+      console.error('Failed to delete patient:', err);
     }
   };
 
@@ -59,7 +57,7 @@ const Patients = () => {
       setEditingId(null);
       await fetchPatients();
     } catch (err) {
-      alert('Failed to update patient: ' + err.message);
+      console.error('Failed to update patient:', err);
     } finally {
       setSavingId(null);
     }

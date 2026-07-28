@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import * as api from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const isAdmin = user.role === 'admin';
 
@@ -57,27 +59,23 @@ const Dashboard = () => {
   };
 
   const handleDeletePatient = async (id) => {
-    if (window.confirm('Delete this patient record?')) {
-      try {
-        await api.deletePatient(id);
-        showAlert('Patient removed.');
-        await fetchPatients();
-      } catch (err) {
-        showAlert('Failed to delete patient: ' + err.message);
-      }
+    try {
+      await api.deletePatient(id);
+      showAlert('Patient removed.');
+      await fetchPatients();
+    } catch (err) {
+      showAlert('Failed to delete patient: ' + err.message);
     }
   };
 
   const handleClearAll = async () => {
     if (patients.length === 0) return;
-    if (window.confirm('Clear all patient records?')) {
-      try {
-        await api.clearAllPatients();
-        showAlert('All records cleared.');
-        await fetchPatients();
-      } catch (err) {
-        showAlert('Failed to clear records: ' + err.message);
-      }
+    try {
+      await api.clearAllPatients();
+      showAlert('All records cleared.');
+      await fetchPatients();
+    } catch (err) {
+      showAlert('Failed to clear records: ' + err.message);
     }
   };
 
@@ -163,7 +161,7 @@ const Dashboard = () => {
           <div className="module"><h3>Auto Alerts</h3><p className="module-text">{highRiskCount > 0 ? `${highRiskCount} patient(s) flagged as HIGH risk.` : 'No alerts at this time.'}</p></div>
           <div className="module"><h3>Disease Trends</h3><p className="module-text">Trend analysis will appear here.</p></div>
           <div className="module"><h3>Outreach Scheduler</h3><p className="footer-info">Next visit: Barangay Zone 3 - Friday</p>
-            <button className="btn btn-outline btn-sm" onClick={() => alert('Scheduling module coming soon!')} style={{ marginTop: '8px' }}>Schedule Visit</button>
+            <button className="btn btn-outline btn-sm" onClick={() => navigate('/dashboard-b')} style={{ marginTop: '8px' }}>Schedule Visit</button>
           </div>
         </div>
       </main>

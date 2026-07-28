@@ -15,7 +15,9 @@ export default function DashboardC() {
   const [dateAdded, setDateAdded] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Targets inventory.php endpoint file directly
+  const [formError, setFormError] = useState('');
+
+  // Targets inventory API endpoint via service
   const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
@@ -33,11 +35,8 @@ export default function DashboardC() {
         }
       }
 
-      const response = await fetch('http://localhost/ecare/inventory.php');
-      const data = await response.json();
-      if (data.status === 'success') {
-        setInventory(data.data);
-      }
+      const items = await api.getInventory();
+      setInventory(items || []);
     } catch (error) {
       console.error("Database connectivity broken:", error);
     } finally {
@@ -51,8 +50,9 @@ export default function DashboardC() {
 
   const handleAddMedicine = async (e) => {
     e.preventDefault();
+    setFormError('');
     if (!medName.trim() || !qty || !dateAdded) {
-      alert("Please complete all input fields.");
+      setFormError("Please complete all input fields.");
       return;
     }
 
@@ -63,24 +63,14 @@ export default function DashboardC() {
     };
 
     try {
-      const response = await fetch('http://localhost/ecare/inventory.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-
-      if (result.status === 'success') {
-        setMedName('');
-        setQty('');
-        setDateAdded('');
-        fetchInventory();
-      } else {
-        alert(result.message);
-      }
+      await api.addInventory(payload);
+      setMedName('');
+      setQty('');
+      setDateAdded('');
+      fetchInventory();
     } catch (error) {
       console.error("Transmission breakdown:", error);
+      setFormError(error.message || 'Failed to add medicine');
     }
   };
 
@@ -122,6 +112,7 @@ export default function DashboardC() {
         {/* ENTRY REGISTRY ROW */}
         <div style={{ background: '#FFF', borderRadius: '12px', border: '1px solid #EADBCE', padding: '2rem' }}>
           <h3 style={{ margin: '0 0 1.75rem 0', color: '#3A2813', fontSize: '1.2rem' }}>Supply Stock Entry Registry</h3>
+          {formError && <div style={{ color: '#A07660', fontSize: '0.85rem', marginBottom: '1rem', fontWeight: 'bold' }}>{formError}</div>}
 
           <form onSubmit={handleAddMedicine} style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'flex-end', marginBottom: '2rem' }}>
             <div style={{ flex: '1 1 250px' }}>

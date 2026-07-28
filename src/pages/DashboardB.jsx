@@ -29,12 +29,9 @@ const DashboardB = () => {
       const dashboardData = await api.getDashboardB();
       setAlertFunnel(dashboardData.alertFunnel || []);
 
-      // Fetch bhw assignments from new endpoint
-      const response = await fetch('http://localhost/ecare/bhw_handler.php');
-      const data = await response.json();
-      if (data.status === 'success') {
-        setBhwMatrix(data.data);
-      }
+      // Fetch bhw assignments from API service
+      const assignments = await api.getBhwAssignments();
+      setBhwMatrix(assignments || []);
     } catch (err) {
       console.error('Failed to load Dashboard B data:', err);
     } finally {
@@ -46,10 +43,13 @@ const DashboardB = () => {
     fetchData();
   }, []);
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleAddAssignment = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
     if (!staffName.trim() || !zone.trim() || !alerts) {
-      alert("Please complete all fields to log an assignment.");
+      setErrorMsg("Please complete all fields to log an assignment.");
       return;
     }
 
@@ -60,22 +60,14 @@ const DashboardB = () => {
     };
 
     try {
-      const response = await fetch('http://localhost/ecare/bhw_handler.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (result.status === 'success') {
-        setStaffName('');
-        setZone('');
-        setAlerts('');
-        fetchData(); // Refresh history
-      } else {
-        alert(result.message);
-      }
+      await api.addBhwAssignment(payload);
+      setStaffName('');
+      setZone('');
+      setAlerts('');
+      fetchData(); // Refresh history
     } catch (error) {
       console.error("Form dispatch failure:", error);
+      setErrorMsg(error.message || 'Failed to log assignment');
     }
   };
 
@@ -126,6 +118,7 @@ const DashboardB = () => {
 
           <div className="module admin-card">
             <h3>BHW Assignment & History</h3>
+            {errorMsg && <div style={{ color: '#b5493a', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 'bold' }}>{errorMsg}</div>}
 
             {/* Add BHW Assignment Form */}
             <form onSubmit={handleAddAssignment} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>

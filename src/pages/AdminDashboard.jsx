@@ -64,15 +64,13 @@ const AdminDashboard = () => {
   }, [fetchData]);
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await api.deleteUser(userId);
-        // Refresh list
-        const usersList = await api.getUsers();
-        setUsers(usersList);
-      } catch (err) {
-        alert('Failed to delete user: ' + err.message);
-      }
+    try {
+      await api.deleteUser(userId);
+      // Refresh list
+      const usersList = await api.getUsers();
+      setUsers(usersList);
+    } catch (err) {
+      console.error('Failed to delete user:', err);
     }
   };
 
