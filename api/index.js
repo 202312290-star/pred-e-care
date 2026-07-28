@@ -1,10 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const Database = require('better-sqlite3');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
-// Global CORS Middleware - Ensures cross-origin requests from any device work smoothly
+// Global CORS Middleware
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -24,71 +27,109 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// In-Memory & File Persisted Store Initializer
-let db = {
-  users: [
-    {
-      id: 1,
-      full_name: 'Admin User',
-      email: 'admin@ecare.com',
-      password: bcrypt.hashSync('admin123', 10),
-      role: 'admin',
-      created_at: new Date().toISOString()
-    }
-  ],
-  patients: [
-    {
-      id: 1,
-      name: 'Rodrigo Duterte',
-      age: 81,
-      zone: 'Purok 1',
-      symptoms: 'High fever, severe joint pain and headache',
-      risk: 'High',
-      created_at: new Date(Date.now() - 3 * 86400000).toISOString()
-    },
-    {
-      id: 2,
-      name: 'Imee Marcos',
-      age: 79,
-      zone: 'Purok 2',
-      symptoms: 'Mild cough and runny nose',
-      risk: 'Medium',
-      created_at: new Date(Date.now() - 2 * 86400000).toISOString()
-    }
-  ],
-  activities: [
-    {
-      id: 1,
-      action: 'System Initialized',
-      detail: 'PRED-E-CARE server active',
-      timestamp: new Date().toISOString()
-    }
-  ],
-  map_zones: [
+// Determine database path (use /tmp/ for Vercel, local for dev)
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel ? '/tmp/database.sqlite' : path.join(__dirname, 'database.sqlite');
+
+const sqldb = new Database(dbPath, { verbose: null });
+
+// Create tables if not exist
+sqldb.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'BHW',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  
+  CREATE TABLE IF NOT EXISTS patients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER,
+    zone TEXT DEFAULT 'Purok 1',
+    symptoms TEXT,
+    risk TEXT DEFAULT 'Low',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  
+  CREATE TABLE IF NOT EXISTS activities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action TEXT NOT NULL,
+    detail TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  
+  CREATE TABLE IF NOT EXISTS bhw_assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    zone TEXT NOT NULL,
+    alerts INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'Active',
+    logged_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  
+  CREATE TABLE IF NOT EXISTS medicine_inventory (
+    item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    medicine_name TEXT NOT NULL,
+    quantity_added INTEGER DEFAULT 0,
+    date_received TEXT,
+    logged_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+// Insert default data if empty
+const userCount = sqldb.prepare("SELECT COUNT(*) as count FROM users").get().count;
+if (userCount === 0) {
+  const insertUser = sqldb.prepare("INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)");
+  insertUser.run('Admin User', 'admin@ecare.com', bcrypt.hashSync('admin123', 10), 'admin');
+}
+
+const patientCount = sqldb.prepare("SELECT COUNT(*) as count FROM patients").get().count;
+if (patientCount === 0) {
+  const insertPatient = sqldb.prepare("INSERT INTO patients (name, age, zone, symptoms, risk) VALUES (?, ?, ?, ?, ?)");
+  insertPatient.run('Rodrigo Duterte', 81, 'Purok 1', 'High fever, severe joint pain and headache', 'High');
+  insertPatient.run('Imee Marcos', 79, 'Purok 2', 'Mild cough and runny nose', 'Medium');
+}
+
+const activityCount = sqldb.prepare("SELECT COUNT(*) as count FROM activities").get().count;
+if (activityCount === 0) {
+  const insertActivity = sqldb.prepare("INSERT INTO activities (action, detail) VALUES (?, ?)");
+  insertActivity.run('System Initialized', 'PRED-E-CARE SQLite server active');
+}
+
+const bhwCount = sqldb.prepare("SELECT COUNT(*) as count FROM bhw_assignments").get().count;
+if (bhwCount === 0) {
+  const insertBHW = sqldb.prepare("INSERT INTO bhw_assignments (name, zone, alerts, status) VALUES (?, ?, ?, ?)");
+  insertBHW.run('Maria Santos', 'Purok 1 & 2', 8, 'Active');
+  insertBHW.run('Juan Dela Cruz', 'Purok 3', 2, 'Active');
+  insertBHW.run('Elena Ramos', 'Purok 4', 14, 'Overloaded');
+  insertBHW.run('Pedro Garcia', 'Purok 5 & 6', 5, 'Active');
+}
+
+const invCount = sqldb.prepare("SELECT COUNT(*) as count FROM medicine_inventory").get().count;
+if (invCount === 0) {
+  const insertInv = sqldb.prepare("INSERT INTO medicine_inventory (medicine_name, quantity_added, date_received) VALUES (?, ?, ?)");
+  insertInv.run('Paracetamol 500mg', 500, '2026-07-20');
+  insertInv.run('Amoxicillin 500mg', 200, '2026-07-22');
+}
+
+// In-Memory readonly data (static dashboard configs)
+const map_zones = [
     { id: 1, name: 'Purok 1', risk: 'high', cases: 24, trend: '+12%' },
     { id: 2, name: 'Purok 2', risk: 'medium', cases: 15, trend: '+5%' },
     { id: 3, name: 'Purok 3', risk: 'low', cases: 4, trend: '-2%' },
     { id: 4, name: 'Purok 4', risk: 'high', cases: 31, trend: '+18%' },
     { id: 5, name: 'Purok 5', risk: 'low', cases: 2, trend: '0%' },
     { id: 6, name: 'Purok 6', risk: 'medium', cases: 12, trend: '+8%' }
-  ],
-  predicted_illnesses: [
-    { id: 1, disease: 'Dengue', prediction: '+45% spike in Zone 2 & 4 next month due to high rainfall', severity: 'high' },
-    { id: 2, disease: 'Influenza', prediction: '+20% increase barangay-wide in 14 days', severity: 'medium' },
-    { id: 3, disease: 'Typhoid', prediction: 'Isolated cases in Zone 1. Monitor water supply.', severity: 'medium' }
-  ],
-  alert_funnel: [
+];
+const alert_funnel = [
     { id: 1, name: 'Alerts Generated', value: 120, fill_color: '#8b5e3c' },
     { id: 2, name: 'Dispatched', value: 95, fill_color: '#c4a882' },
     { id: 3, name: 'Outreach Done', value: 68, fill_color: '#3d7a45' }
-  ],
-  bhw_assignments: [
-    { id: 1, name: 'Maria Santos', zone: 'Purok 1 & 2', alerts: 8, status: 'Active', logged_at: new Date().toISOString() },
-    { id: 2, name: 'Juan Dela Cruz', zone: 'Purok 3', alerts: 2, status: 'Active', logged_at: new Date().toISOString() },
-    { id: 3, name: 'Elena Ramos', zone: 'Purok 4', alerts: 14, status: 'Overloaded', logged_at: new Date().toISOString() },
-    { id: 4, name: 'Pedro Garcia', zone: 'Purok 5 & 6', alerts: 5, status: 'Active', logged_at: new Date().toISOString() }
-  ],
-  inventory_forecast: [
+];
+const inventory_forecast = [
     { id: 1, day_label: 'Day 1', supply: 500, projected_demand: 40 },
     { id: 2, day_label: 'Day 5', supply: 420, projected_demand: 80 },
     { id: 3, day_label: 'Day 10', supply: 320, projected_demand: 150 },
@@ -96,21 +137,11 @@ let db = {
     { id: 5, day_label: 'Day 20', supply: 80, projected_demand: 300 },
     { id: 6, day_label: 'Day 25', supply: 0, projected_demand: 380 },
     { id: 7, day_label: 'Day 30', supply: 0, projected_demand: 450 }
-  ],
-  medicine_inventory: [
-    { item_id: 1, medicine_name: 'Paracetamol 500mg', quantity_added: 500, date_received: '2026-07-20', logged_at: new Date().toISOString() },
-    { item_id: 2, medicine_name: 'Amoxicillin 500mg', quantity_added: 200, date_received: '2026-07-22', logged_at: new Date().toISOString() }
-  ]
-};
+];
 
 function logActivity(action, detail) {
-  const newActivity = {
-    id: db.activities.length + 1,
-    action,
-    detail,
-    timestamp: new Date().toISOString()
-  };
-  db.activities.unshift(newActivity);
+  const insertActivity = sqldb.prepare("INSERT INTO activities (action, detail) VALUES (?, ?)");
+  insertActivity.run(action, detail);
 }
 
 function calculateRisk(symptoms) {
@@ -144,7 +175,8 @@ router.post('/login', (req, res) => {
     }
 
     const cleanEmail = String(email).trim().toLowerCase();
-    let user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+    
+    let user = sqldb.prepare("SELECT * FROM users WHERE email = ?").get(cleanEmail);
 
     let passwordMatches = false;
     if (user && user.password) {
@@ -157,15 +189,14 @@ router.post('/login', (req, res) => {
 
     if (!user) {
       // Auto-provision user on serverless environment so login works seamlessly from any device
-      user = {
-        id: db.users.length + 1,
-        full_name: cleanEmail.includes('admin') ? 'Admin User' : (cleanEmail.split('@')[0] || 'User'),
-        email: cleanEmail,
-        password: bcrypt.hashSync(password, 10),
-        role: (cleanEmail === 'admin@ecare.com' || cleanEmail.includes('admin')) ? 'admin' : 'BHW',
-        created_at: new Date().toISOString()
-      };
-      db.users.push(user);
+      const role = (cleanEmail === 'admin@ecare.com' || cleanEmail.includes('admin')) ? 'admin' : 'BHW';
+      const fullName = cleanEmail.includes('admin') ? 'Admin User' : (cleanEmail.split('@')[0] || 'User');
+      const hash = bcrypt.hashSync(password, 10);
+      
+      const insertUser = sqldb.prepare("INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)");
+      const result = insertUser.run(fullName, cleanEmail, hash, role);
+      
+      user = sqldb.prepare("SELECT * FROM users WHERE id = ?").get(result.lastInsertRowid);
       passwordMatches = true;
     }
 
@@ -196,36 +227,32 @@ router.post('/register', (req, res) => {
   if (!name || !email || !password) {
     return res.status(400).json({ status: 'error', message: 'All fields are required.' });
   }
+  
+  const cleanEmail = email.toLowerCase();
+  const existing = sqldb.prepare("SELECT * FROM users WHERE email = ?").get(cleanEmail);
 
-  const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (existing) {
     return res.status(400).json({ status: 'error', message: 'Email already registered.' });
   }
 
-  const newUser = {
-    id: db.users.length + 1,
-    full_name: name,
-    email: email.toLowerCase(),
-    password: bcrypt.hashSync(password, 10),
-    role: role || 'BHW',
-    created_at: new Date().toISOString()
-  };
+  const insertUser = sqldb.prepare("INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)");
+  insertUser.run(name, cleanEmail, bcrypt.hashSync(password, 10), role || 'BHW');
 
-  db.users.push(newUser);
   logActivity('User Registered', `New user registered: ${name} (${role || 'BHW'})`);
   return res.json({ status: 'success', message: 'Account created successfully.' });
 });
 
 // ROUTE: PATIENTS (GET, POST, PUT, DELETE)
 router.get('/patients', (req, res) => {
-  res.json(db.patients);
+  const patients = sqldb.prepare("SELECT * FROM patients ORDER BY id DESC").all();
+  res.json(patients);
 });
 
 router.post('/patients', (req, res) => {
   const data = req.body || {};
 
   if (data.action === 'clearAll') {
-    db.patients = [];
+    sqldb.prepare("DELETE FROM patients").run();
     logActivity('System', 'Cleared all patient records');
     return res.json({ status: 'success', message: 'All patients cleared.' });
   }
@@ -236,17 +263,11 @@ router.post('/patients', (req, res) => {
   }
 
   const risk = calculateRisk(symptoms);
-  const newPatient = {
-    id: db.patients.length > 0 ? Math.max(...db.patients.map(p => p.id)) + 1 : 1,
-    name,
-    age: parseInt(age, 10),
-    zone: zone || 'Purok 1',
-    symptoms: symptoms || '',
-    risk,
-    created_at: new Date().toISOString()
-  };
+  const insertPatient = sqldb.prepare("INSERT INTO patients (name, age, zone, symptoms, risk) VALUES (?, ?, ?, ?, ?)");
+  const result = insertPatient.run(name, parseInt(age, 10), zone || 'Purok 1', symptoms || '', risk);
+  
+  const newPatient = sqldb.prepare("SELECT * FROM patients WHERE id = ?").get(result.lastInsertRowid);
 
-  db.patients.unshift(newPatient);
   logActivity('Added Patient', `Added ${name} (Risk: ${risk})`);
   return res.json({ status: 'success', message: 'Patient added successfully.', patient: newPatient });
 });
@@ -255,49 +276,53 @@ router.put('/patients', (req, res) => {
   const id = parseInt(req.query.id || req.body.id, 10);
   const { name, age, symptoms, zone } = req.body || {};
 
-  const patient = db.patients.find(p => p.id === id);
+  const patient = sqldb.prepare("SELECT * FROM patients WHERE id = ?").get(id);
   if (!patient) {
     return res.status(404).json({ status: 'error', message: 'Patient not found.' });
   }
 
-  if (name) patient.name = name;
-  if (age !== undefined) patient.age = parseInt(age, 10);
+  let newRisk = patient.risk;
   if (symptoms !== undefined) {
-    patient.symptoms = symptoms;
-    patient.risk = calculateRisk(symptoms);
+      newRisk = calculateRisk(symptoms);
   }
-  if (zone) patient.zone = zone;
 
-  logActivity('Updated Patient', `Updated details of ${patient.name}`);
-  return res.json({ status: 'success', message: 'Patient updated successfully.', patient });
+  const updatePatient = sqldb.prepare("UPDATE patients SET name = COALESCE(?, name), age = COALESCE(?, age), symptoms = COALESCE(?, symptoms), zone = COALESCE(?, zone), risk = ? WHERE id = ?");
+  updatePatient.run(name, age !== undefined ? parseInt(age, 10) : null, symptoms, zone, newRisk, id);
+
+  const updatedPatient = sqldb.prepare("SELECT * FROM patients WHERE id = ?").get(id);
+
+  logActivity('Updated Patient', `Updated details of ${updatedPatient.name}`);
+  return res.json({ status: 'success', message: 'Patient updated successfully.', patient: updatedPatient });
 });
 
 router.delete('/patients', (req, res) => {
   const id = parseInt(req.query.id || req.body?.id, 10);
-  const index = db.patients.findIndex(p => p.id === id);
-  if (index === -1) {
+  const patient = sqldb.prepare("SELECT * FROM patients WHERE id = ?").get(id);
+  if (!patient) {
     return res.status(404).json({ status: 'error', message: 'Patient not found.' });
   }
 
-  const removed = db.patients.splice(index, 1)[0];
-  logActivity('Deleted Patient', `Removed ${removed.name}`);
+  sqldb.prepare("DELETE FROM patients WHERE id = ?").run(id);
+  logActivity('Deleted Patient', `Removed ${patient.name}`);
   return res.json({ status: 'success', message: 'Patient deleted.' });
 });
 
 // ROUTE: DASHBOARD (stats, activity, export, dashboard_a, dashboard_b, dashboard_c)
 router.get('/dashboard', (req, res) => {
   const action = req.query.action || '';
+  
+  const patients = sqldb.prepare("SELECT * FROM patients").all();
 
   if (action === 'stats') {
-    const totalPatients = db.patients.length;
-    const criticalRisk = db.patients.filter(p => p.risk === 'High').length;
+    const totalPatients = patients.length;
+    const criticalRisk = patients.filter(p => p.risk === 'High').length;
     const pendingConsults = Math.ceil(totalPatients * 0.3);
 
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const weeklyTrend = days.map(day => ({
       day,
       actions: Math.floor(Math.random() * 8) + 2,
-      patients: db.patients.length
+      patients: patients.length
     }));
 
     return res.json({
@@ -309,13 +334,14 @@ router.get('/dashboard', (req, res) => {
   }
 
   if (action === 'activity') {
-    return res.json(db.activities);
+    const activities = sqldb.prepare("SELECT * FROM activities ORDER BY id DESC").all();
+    return res.json(activities);
   }
 
   if (action === 'export') {
     logActivity('Report Exported', 'System overview report downloaded by user');
     let csv = 'Patient ID,Name,Age,Purok/Zone,Symptoms,Risk Level,Date Created\n';
-    db.patients.forEach(p => {
+    patients.forEach(p => {
       csv += `"${p.id}","${p.name}","${p.age}","${p.zone}","${p.symptoms}","${p.risk}","${p.created_at}"\n`;
     });
     res.setHeader('Content-Type', 'text/csv');
@@ -334,7 +360,7 @@ router.get('/dashboard', (req, res) => {
     const globalIllnessCounts = { Dengue: 0, Influenza: 0, Typhoid: 0, 'Common Cold': 0 };
     const zonesData = {};
 
-    db.patients.forEach(p => {
+    patients.forEach(p => {
       const zone = p.zone || 'Unassigned';
       const sympText = (p.symptoms || '').toLowerCase();
       let diagnosedIllness = 'Common Cold';
@@ -368,7 +394,7 @@ router.get('/dashboard', (req, res) => {
       zonesData[zone].illness_counts[diagnosedIllness] = (zonesData[zone].illness_counts[diagnosedIllness] || 0) + 1;
     });
 
-    const mapZones = db.map_zones.map(z => {
+    const mapZonesResult = map_zones.map(z => {
       const zoneInfo = zonesData[z.name];
       return {
         ...z,
@@ -404,7 +430,7 @@ router.get('/dashboard', (req, res) => {
       { label: 'Wk of Jul 05', type: 'past', actual: 32, actualDengue: 15, actualFlu: 14 },
       { label: 'Wk of Jul 12', type: 'past', actual: 45, actualDengue: 22, actualFlu: 20 },
       { label: 'Wk of Jul 19', type: 'past', actual: 38, actualDengue: 18, actualFlu: 17 },
-      { label: 'Wk of Jul 26 (Present)', type: 'present', actual: db.patients.length + 20, predicted: db.patients.length + 20, actualDengue: 10, predictedDengue: 10, actualFlu: 9, predictedFlu: 9 },
+      { label: 'Wk of Jul 26 (Present)', type: 'present', actual: patients.length + 20, predicted: patients.length + 20, actualDengue: 10, predictedDengue: 10, actualFlu: 9, predictedFlu: 9 },
       { label: 'Wk of Aug 02 (Future)', type: 'future', predicted: 15, predictedDengue: 7, predictedFlu: 6 },
       { label: 'Wk of Aug 09 (Future)', type: 'future', predicted: 8, predictedDengue: 4, predictedFlu: 3 },
       { label: 'Wk of Aug 16 (Future)', type: 'future', predicted: 4, predictedDengue: 2, predictedFlu: 1 }
@@ -420,7 +446,7 @@ router.get('/dashboard', (req, res) => {
     };
 
     return res.json({
-      mapZones,
+      mapZones: mapZonesResult,
       illnesses,
       trendForecast,
       forecastMetrics
@@ -428,15 +454,16 @@ router.get('/dashboard', (req, res) => {
   }
 
   if (action === 'dashboard_b') {
+    const bhws = sqldb.prepare("SELECT * FROM bhw_assignments ORDER BY id DESC").all();
     return res.json({
-      alertFunnel: db.alert_funnel,
-      bhwMatrix: db.bhw_assignments
+      alertFunnel: alert_funnel,
+      bhwMatrix: bhws
     });
   }
 
   if (action === 'dashboard_c') {
     return res.json({
-      inventoryForecast: db.inventory_forecast
+      inventoryForecast: inventory_forecast
     });
   }
 
@@ -445,39 +472,40 @@ router.get('/dashboard', (req, res) => {
 
 // ROUTE: ADMIN USER MANAGEMENT
 router.get('/admin', (req, res) => {
-  const safeUsers = db.users.map(({ password, ...u }) => u);
-  res.json({ status: 'success', users: safeUsers });
+  const users = sqldb.prepare("SELECT id, full_name, email, role, created_at FROM users").all();
+  res.json({ status: 'success', users: users });
 });
 
 router.post('/admin', (req, res) => {
   const { id, role } = req.body || {};
-  const user = db.users.find(u => u.id === parseInt(id, 10));
+  const user = sqldb.prepare("SELECT * FROM users WHERE id = ?").get(parseInt(id, 10));
 
   if (!user) {
     return res.status(404).json({ status: 'error', message: 'User not found.' });
   }
 
-  user.role = role;
+  sqldb.prepare("UPDATE users SET role = ? WHERE id = ?").run(role, user.id);
   logActivity('Updated User Role', `Changed role of ${user.full_name} to ${role}`);
   return res.json({ status: 'success', message: 'User role updated successfully.' });
 });
 
 router.delete('/admin', (req, res) => {
   const id = parseInt(req.query.id || req.body?.id, 10);
-  const index = db.users.findIndex(u => u.id === id);
+  const user = sqldb.prepare("SELECT * FROM users WHERE id = ?").get(id);
 
-  if (index === -1) {
+  if (!user) {
     return res.status(404).json({ status: 'error', message: 'User not found.' });
   }
 
-  const removed = db.users.splice(index, 1)[0];
-  logActivity('Deleted User', `Removed user ${removed.full_name}`);
+  sqldb.prepare("DELETE FROM users WHERE id = ?").run(id);
+  logActivity('Deleted User', `Removed user ${user.full_name}`);
   return res.json({ status: 'success', message: 'User deleted successfully.' });
 });
 
 // ROUTE: BHW HANDLER
 router.get('/bhw_handler', (req, res) => {
-  res.json({ status: 'success', data: db.bhw_assignments });
+  const bhws = sqldb.prepare("SELECT * FROM bhw_assignments ORDER BY id DESC").all();
+  res.json({ status: 'success', data: bhws });
 });
 
 router.post('/bhw_handler', (req, res) => {
@@ -488,23 +516,16 @@ router.post('/bhw_handler', (req, res) => {
 
   const alertsNum = parseInt(alerts, 10);
   const status = alertsNum >= 10 ? 'Overloaded' : 'Active';
-  const newAssignment = {
-    id: db.bhw_assignments.length + 1,
-    name,
-    zone,
-    alerts: alertsNum,
-    status,
-    logged_at: new Date().toISOString()
-  };
-
-  db.bhw_assignments.unshift(newAssignment);
+  
+  sqldb.prepare("INSERT INTO bhw_assignments (name, zone, alerts, status) VALUES (?, ?, ?, ?)").run(name, zone, alertsNum, status);
   logActivity('BHW Assignment', `Assigned ${name} to ${zone} (Alerts: ${alertsNum})`);
   return res.json({ status: 'success', message: 'BHW assignment logged successfully.' });
 });
 
 // ROUTE: INVENTORY HANDLER
 router.get('/inventory', (req, res) => {
-  res.json({ status: 'success', data: db.medicine_inventory });
+  const inv = sqldb.prepare("SELECT * FROM medicine_inventory ORDER BY item_id DESC").all();
+  res.json({ status: 'success', data: inv });
 });
 
 router.post('/inventory', (req, res) => {
@@ -513,15 +534,7 @@ router.post('/inventory', (req, res) => {
     return res.status(400).json({ status: 'error', message: 'All fields are required.' });
   }
 
-  const newItem = {
-    item_id: db.medicine_inventory.length + 1,
-    medicine_name,
-    quantity_added: parseInt(quantity_added, 10),
-    date_received,
-    logged_at: new Date().toISOString()
-  };
-
-  db.medicine_inventory.unshift(newItem);
+  sqldb.prepare("INSERT INTO medicine_inventory (medicine_name, quantity_added, date_received) VALUES (?, ?, ?)").run(medicine_name, parseInt(quantity_added, 10), date_received);
   logActivity('Supply Registry', `Added ${medicine_name} (Qty: ${quantity_added})`);
   return res.json({ status: 'success', message: 'Stock entry saved successfully!' });
 });
