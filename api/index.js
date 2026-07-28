@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
-const mysql = require('mysql2/promise');
+const pool = require('./db');
 
 const app = express();
 
@@ -13,17 +13,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// MySQL connection pool
-const pool = mysql.createPool({
-  host: '127.0.0.1',
-  user: 'root',
-  password: '',
-  database: 'pred_e_care',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
 
 const router = express.Router();
 
@@ -435,7 +424,7 @@ router.delete('/admin', async (req, res) => {
   }
 });
 
-router.get('/bhw_handler', async (req, res) => {
+router.get('/bhw', async (req, res) => {
   try {
     const [bhws] = await pool.execute('SELECT * FROM bhw_assignments ORDER BY id DESC');
     res.json({ status: 'success', data: bhws });
@@ -445,7 +434,7 @@ router.get('/bhw_handler', async (req, res) => {
   }
 });
 
-router.post('/bhw_handler', async (req, res) => {
+router.post('/bhw', async (req, res) => {
   try {
     const { name, zone, alerts } = req.body || {};
     if (!name || !zone || alerts === undefined) {
@@ -464,7 +453,7 @@ router.post('/bhw_handler', async (req, res) => {
   }
 });
 
-router.get('/inventory', async (req, res) => {
+router.get('/supplies', async (req, res) => {
   try {
     const [inv] = await pool.execute('SELECT * FROM medicine_inventory ORDER BY item_id DESC');
     res.json({ status: 'success', data: inv });
@@ -474,7 +463,7 @@ router.get('/inventory', async (req, res) => {
   }
 });
 
-router.post('/inventory', async (req, res) => {
+router.post('/supplies', async (req, res) => {
   try {
     const { medicine_name, quantity_added, date_received } = req.body || {};
     if (!medicine_name || quantity_added === undefined || !date_received) {

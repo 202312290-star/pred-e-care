@@ -199,7 +199,7 @@ export const deleteUser = async (id) => {
 
 // --- BHW ASSIGNMENT ENDPOINTS ---
 export const getBhwAssignments = async () => {
-    const response = await fetch(`${BASE_URL}/bhw_handler`);
+    const response = await fetch(`${BASE_URL}/bhw`);
     if (!response.ok) throw new Error("Failed to fetch BHW assignments");
     const data = await response.json();
     if (data.status === 'error') throw new Error(data.message);
@@ -207,7 +207,7 @@ export const getBhwAssignments = async () => {
 };
 
 export const addBhwAssignment = async (assignment) => {
-    const response = await fetch(`${BASE_URL}/bhw_handler`, {
+    const response = await fetch(`${BASE_URL}/bhw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(assignment),
@@ -220,7 +220,7 @@ export const addBhwAssignment = async (assignment) => {
 
 // --- INVENTORY ENDPOINTS ---
 export const getInventory = async () => {
-    const response = await fetch(`${BASE_URL}/inventory`);
+    const response = await fetch(`${BASE_URL}/supplies`);
     if (!response.ok) throw new Error("Failed to fetch medicine inventory");
     const data = await response.json();
     if (data.status === 'error') throw new Error(data.message);
@@ -228,7 +228,7 @@ export const getInventory = async () => {
 };
 
 export const addInventory = async (item) => {
-    const response = await fetch(`${BASE_URL}/inventory`, {
+    const response = await fetch(`${BASE_URL}/supplies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(item),

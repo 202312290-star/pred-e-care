@@ -4,12 +4,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
-import Patient from "./pages/Patient";
+import PatientRegistry from "./pages/PatientRegistry";
 import Overview from "./pages/Overview";
 import AdminDashboard from "./pages/AdminDashboard";
 import DashboardA from "./pages/DashboardA";
-import DashboardB from "./pages/DashboardB";
-import DashboardC from "./pages/DashboardC";
+import BHWAssignment from "./pages/BHWAssignment";
+import SupplyRegistry from "./pages/SupplyRegistry";
 import CriticalStockout from "./pages/CriticalStockout";
 import AuditLogs from "./pages/AuditLogs";
 
@@ -28,10 +28,10 @@ export default function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/patient" element={<Patient />} />
+        <Route path="/patient" element={<PatientRegistry />} />
         <Route path="/dashboard-a" element={<DashboardA />} />
-        <Route path="/dashboard-b" element={<DashboardB />} />
-        <Route path="/dashboard-c" element={<DashboardC />} />
+        <Route path="/dashboard-b" element={<BHWAssignment />} />
+        <Route path="/dashboard-c" element={<SupplyRegistry />} />
         
         {/* Admin Only Routes */}
         <Route path="/overview" element={<AdminRoute><Overview /></AdminRoute>} />
